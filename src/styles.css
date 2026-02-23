@@ -1,3 +1,11 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import "tailwindcss";
+
+@theme{
+  --color-green: #2bab6f;
+};
+
+@layer base{
+  html, body {
+    @apply h-full w-full m-0 p-0;
+  }
+}
