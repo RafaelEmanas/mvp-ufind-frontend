@@ -1,3 +1,32 @@
-<div class="flex items-center justify-center py-16">
-    <p class="text-sm text-gray-400">Nenhum item cadastrado.</p>
+<div class="px-4 md:px-6 py-6">
+  @if (loadingState()) {
+    <app-loading />
+  }
+
+  @else if (error()) {
+    <app-items-list-error />
+  }
+
+  @else if (pageItem()?.empty) {
+    <app-items-list-empty />
+  }
+
+  @else {
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      @for (item of items(); track item.id) {
+        <app-item [item]="item" />
+      }
+    </div>
+
+    @if ((pageItem()?.totalPages ?? 0) > 1) {
+      <app-pagination
+        [pageNumber]="pageItem()?.number ?? 0"
+        [totalPages]="pageItem()?.totalPages ?? 0"
+        [isFirst]="pageItem()?.first ?? true"
+        [isLast]="pageItem()?.last ?? true"
+        (previous)="previousPage()"
+        (next)="nextPage()"
+      />
+    }
+  }
 </div>

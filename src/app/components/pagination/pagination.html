@@ -1,0 +1,19 @@
+<div class="flex items-center justify-center gap-4 mt-8 text-sm text-gray-600">
+  <button
+    (click)="onPrevious()"
+    [disabled]="isFirst()"
+    class="px-4 py-2 rounded-lg border border-gray-200 bg-white disabled:opacity-40 disabled:cursor-not-allowed [@media(hover:hover)]:hover:bg-gray-100 transition-colors duration-150 cursor-pointer"
+  >
+    Anterior
+  </button>
+
+  <span>Página {{ pageNumber() + 1 }} de {{ totalPages() }}</span>
+
+  <button
+    (click)="onNext()"
+    [disabled]="isLast()"
+    class="px-4 py-2 rounded-lg border border-gray-200 bg-white disabled:opacity-40 disabled:cursor-not-allowed [@media(hover:hover)]:hover:bg-gray-100 transition-colors duration-150 cursor-pointer"
+  >
+    Próximo
+  </button>
+</div>
