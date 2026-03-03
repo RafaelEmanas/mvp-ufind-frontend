@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, output } from '@angular/core';
 
 @Component({
   selector: 'header-component',
@@ -6,5 +6,6 @@ import { Component } from '@angular/core';
   templateUrl: './header.html'
 })
 export class Header {
-
+  navigateToLogin = output<void>();
 }
+
