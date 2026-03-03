@@ -1,0 +1,10 @@
+<main class="min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-md overflow-hidden animate-fade-up">
+    <app-login-header></app-login-header>
+    <app-login-form 
+      [error]="error()" 
+      [loading]="loading()"
+      (formSubmit)="onSubmit($event)">
+    </app-login-form>
+  </div>
+</main>
