@@ -1,5 +1,5 @@
 import { Component, input, output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { signal } from '@angular/core';
 
 @Component({
@@ -10,15 +10,20 @@ import { signal } from '@angular/core';
 export class LoginForm {
   email = signal<string>('');
   password = signal<string>('');
+  submitted = signal<boolean>(false);
 
   error = input<string | null>(null);
   loading = input<boolean>(false);
   formSubmit = output<{ email: string; password: string }>();
 
-  onSubmit() {
-    this.formSubmit.emit({
-      email: this.email(),
-      password: this.password()
-    });
+  onSubmit(form: NgForm) {
+    this.submitted.set(true);
+
+    if (form.valid) {
+      this.formSubmit.emit({
+        email: this.email(),
+        password: this.password()
+      });
+    }
   }
 }
