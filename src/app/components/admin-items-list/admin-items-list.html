@@ -1,0 +1,51 @@
+<div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8 w-full lg:flex-1">
+
+  <div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
+    <h2 class="text-lg font-semibold text-gray-900 whitespace-nowrap">
+      Itens Cadastrados
+      <span class="ml-1 text-gray-500 font-normal">({{ totalElements() }})</span>
+    </h2>
+
+    <app-admin-searcbar
+      placeholder="Pesquisar por título ou local..."
+    />
+  </div>
+
+  @if (loading()) {
+    <app-loading />
+  }
+
+  @else if (hasError()) {
+    <div class="py-8 text-center">
+      <p class="text-sm text-red-500">Erro ao carregar itens. Tente novamente.</p>
+    </div>
+  }
+
+  @else if (isEmpty()) {
+    <div class="py-8 text-center">
+      <p class="text-sm text-gray-500">Nenhum item cadastrado.</p>
+    </div>
+  }
+
+  @else {
+    @for (item of items(); track item.id) {
+      <app-admin-item-card
+        [item]="item"
+        (edit)="onEditItem(item.id!)"
+        (delete)="onDeleteItem(item.id!)"
+      />
+    }
+
+    @if (totalPages() > 1) {
+      <app-pagination
+        [pageNumber]="currentPage()"
+        [totalPages]="totalPages()"
+        [isFirst]="isFirstPage()"
+        [isLast]="isLastPage()"
+        (previous)="onPreviousPage()"
+        (next)="onNextPage()"
+      />
+    }
+  }
+
+</div>

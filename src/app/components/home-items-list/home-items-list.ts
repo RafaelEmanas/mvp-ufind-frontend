@@ -2,18 +2,17 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { ItemService } from '../../services/item.service';
 import { PageItem } from '../../types/api.helper';
 import { Loading } from '../loading/loading';
-import { ItemsListError } from '../items-list-error/items-list-error';
-import { ItemsListEmpty } from '../items-list-empty/items-list-empty';
+import { HomeItemsListError } from '../home-items-list-error/home-items-list-error';
+import { HomeItemsListEmpty } from '../home-items-list-empty/home-items-list-empty';
 import { Pagination } from '../pagination/pagination';
-import { ItemComponent } from '../item/item';
+import { HomeItemCard } from '../home-item-card/home-item-card';
 
 @Component({
   selector: 'items-list-component',
-  imports: [Loading, ItemsListError, ItemsListEmpty, Pagination, ItemComponent],
-  templateUrl: './items-list.html'
+  imports: [Loading, HomeItemsListError, HomeItemsListEmpty, Pagination, HomeItemCard],
+  templateUrl: './home-items-list.html',
 })
-export class ItemsList {
-
+export class HomeItemsList {
   private itemService = inject(ItemService);
 
   pageItem = signal<PageItem | null>(null);
@@ -29,7 +28,7 @@ export class ItemsList {
   loadItems(pageNumber: number = 0) {
     this.loadingState.set(true);
     this.error.set(false);
-    
+
     this.itemService.getAllItems(pageNumber).subscribe({
       next: (result) => {
         this.pageItem.set(result);
@@ -39,7 +38,7 @@ export class ItemsList {
       error: () => {
         this.error.set(true);
         this.loadingState.set(false);
-      }
+      },
     });
   }
 
@@ -52,5 +51,4 @@ export class ItemsList {
     if (this.pageItem()?.last) return;
     this.loadItems(this.currentPage() + 1);
   }
-
 }

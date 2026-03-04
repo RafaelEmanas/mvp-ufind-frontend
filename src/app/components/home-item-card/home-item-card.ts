@@ -4,9 +4,9 @@ import { Item } from '../../types/api.helper';
 @Component({
   selector: 'app-item',
   imports: [],
-  templateUrl: './item.html'
+  templateUrl: './home-item-card.html',
 })
-export class ItemComponent {
+export class HomeItemCard {
   item = input.required<Item>();
 
   formatDate(dateString: string): string {
@@ -15,7 +15,7 @@ export class ItemComponent {
   }
 
   badgeClass(status: string): string {
-    return status === 'AVAILABLE' 
+    return status === 'AVAILABLE'
       ? 'px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800'
       : 'px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800';
   }
