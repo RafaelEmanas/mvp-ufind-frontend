@@ -10,9 +10,9 @@ import { Observable } from 'rxjs';
 export class ItemService {
   http = inject(HttpClient);
 
-  getAllItems(page: number = 0): Observable<PageItem> {
+  getAllItems(page: number = 0, size: number = 20): Observable<PageItem> {
     return this.http.get<PageItem>(API_ENDPOINTS.ITEM, {
-      params: { page }
+      params: { page, size }
     });
   }
 
