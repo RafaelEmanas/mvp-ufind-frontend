@@ -1,19 +1,21 @@
 <header class="border-b border-transparent bg-green">
     <div class="mx-auto px-4 md:px-6 h-14 flex items-center justify-between">
         <!-- Logo -->
-        <span class="font-semibold text-2xl tracking-tight text-white select-none">UFind</span>
+        <span (click)="navigateToHome()" class="font-semibold text-2xl tracking-tight text-white select-none cursor-pointer">UFind</span>
 
         <!-- Nav / Admin -->
-        <button 
-          (click)="navigateToLogin.emit()"
-          class="flex items-center gap-2 text-sm text-green bg-white px-3 py-1.5 rounded-md cursor-pointer transition-colors duration-150"
-        >
-        <!-- Settings icon -->
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-green" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317a1.724 1.724 0 013.35 0 1.724 1.724 0 002.573 1.066 1.724 1.724 0 012.372 2.372 1.724 1.724 0 001.066 2.573 1.724 1.724 0 010 3.35 1.724 1.724 0 00-1.066 2.573 1.724 1.724 0 01-2.372 2.372 1.724 1.724 0 00-2.573 1.066 1.724 1.724 0 01-3.35 0 1.724 1.724 0 00-2.573-1.066 1.724 1.724 0 01-2.372-2.372 1.724 1.724 0 00-1.066-2.573 1.724 1.724 0 010-3.35 1.724 1.724 0 001.066-2.573 1.724 1.724 0 012.372-2.372 1.724 1.724 0 002.573-1.066z" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span>Admin</span>
-        </button>
+        @if (showAdminButton()) {
+            <button 
+            (click)="navigateToLogin.emit()"
+            class="flex items-center gap-2 text-sm text-green bg-white px-3 py-1.5 rounded-md cursor-pointer transition-colors duration-150"
+            >
+            <!-- Settings icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-green" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317a1.724 1.724 0 013.35 0 1.724 1.724 0 002.573 1.066 1.724 1.724 0 012.372 2.372 1.724 1.724 0 001.066 2.573 1.724 1.724 0 010 3.35 1.724 1.724 0 00-1.066 2.573 1.724 1.724 0 01-2.372 2.372 1.724 1.724 0 00-2.573 1.066 1.724 1.724 0 01-3.35 0 1.724 1.724 0 00-2.573-1.066 1.724 1.724 0 01-2.372-2.372 1.724 1.724 0 00-1.066-2.573 1.724 1.724 0 010-3.35 1.724 1.724 0 001.066-2.573 1.724 1.724 0 012.372-2.372 1.724 1.724 0 002.573-1.066z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span>Admin</span>
+            </button>
+        }
     </div>
 </header>
