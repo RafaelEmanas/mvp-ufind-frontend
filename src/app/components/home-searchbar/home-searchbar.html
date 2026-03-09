@@ -7,8 +7,16 @@
         </span>
         <input
             type="text"
-            placeholder="Buscar por título ou descrição..."
-            class="w-full pl-9 pr-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400 placeholder-gray-400"
+            [(ngModel)]="searchQuery"
+            (keyup.enter)="onEnterKey($event)"
+            placeholder="Título ou descrição..."
+            class="w-full pl-9 pr-20 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400 placeholder-gray-400"
         />
+        <button
+            (click)="triggerSearch()"
+            class="absolute inset-y-1 right-1 px-4 text-sm font-medium text-white bg-green rounded hover:cursor-pointer"
+        >
+            Buscar
+        </button>
     </div>
 </div>

@@ -1,6 +1,6 @@
 <main>
 	<header-component (navigateToLogin)="navigateToLogin()" />
 	<page-title-component />
-	<searchbar-component />
-	<items-list-component />
+	<searchbar-component (searchEvent)="handleSearch($event)" />
+	<items-list-component [searchQuery]="currentSearchQuery()" />
 </main>

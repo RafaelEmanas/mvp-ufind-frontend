@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { HomePageTitle } from '../../components/home-page-title/home-page-title';
 import { HomeSearchbar } from '../../components/home-searchbar/home-searchbar';
@@ -12,8 +12,13 @@ import { Header } from '../../components/header/header';
 })
 export class Home {
   private router = inject(Router);
+  currentSearchQuery = signal<string>('');
 
   navigateToLogin() {
     this.router.navigate(['/admin']);
+  }
+
+  handleSearch(query: string) {
+    this.currentSearchQuery.set(query);
   }
 }

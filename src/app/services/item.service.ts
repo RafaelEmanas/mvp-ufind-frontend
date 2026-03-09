@@ -16,4 +16,10 @@ export class ItemService {
     });
   }
 
+  searchItems(query: string, page: number = 0, size: number = 20): Observable<PageItem> {
+    return this.http.get<PageItem>(`${API_ENDPOINTS.SEARCH}${query}`, {
+      params: { page, size }
+    });
+  }
+
 }
