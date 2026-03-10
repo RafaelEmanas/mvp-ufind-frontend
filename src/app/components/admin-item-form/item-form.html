@@ -2,75 +2,131 @@
 
   <h2 class="text-xl font-semibold text-gray-900 mb-6">Novo Item</h2>
 
-  <div class="mb-5">
-    <label class="block text-sm font-medium text-gray-700 mb-1">
-      Título <span class="text-red-500">*</span>
-    </label>
-    <input
-      type="text"
-      placeholder="Ex: Carteira preta"
-      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
-    />
-  </div>
+  <form novalidate #itemForm="ngForm" (ngSubmit)="onSubmit(itemForm)">
 
-  <div class="mb-5">
-    <label class="block text-sm font-medium text-gray-700 mb-1">
-      Descrição <span class="text-red-500">*</span>
-    </label>
-    <textarea
-      rows="4"
-      placeholder="Descreva o item encontrado..."
-      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition resize-y"
-    ></textarea>
-  </div>
+    <!-- Title Field -->
+    <div class="mb-5">
+      <label for="title" class="form-label">
+        Título <span class="text-red-500">*</span>
+      </label>
+      <input
+        id="title"
+        type="text"
+        [(ngModel)]="title"
+        name="title"
+        placeholder="Ex: Carteira preta"
+        required
+        maxlength="200"
+        #titleInput="ngModel"
+        class="form-input"
+        [class.border-red-300]="submitted() && titleInput.invalid"
+        [class.focus:ring-red-500]="submitted() && titleInput.invalid"
+      />
+      <app-form-field-error [control]="titleInput" [submitted]="submitted()" />
+    </div>
 
-  <div class="mb-5 flex gap-4">
-    <div class="flex-1 min-w-0">
-      <label class="block text-sm font-medium text-gray-700 mb-1">
+    <!-- Description Field -->
+    <div class="mb-5">
+      <label for="description" class="form-label">
+        Descrição <span class="text-red-500">*</span>
+      </label>
+      <textarea
+        id="description"
+        rows="4"
+        [(ngModel)]="description"
+        name="description"
+        placeholder="Descreva o item encontrado..."
+        required
+        maxlength="500"
+        #descriptionInput="ngModel"
+        class="form-input resize-y"
+        [class.border-red-300]="submitted() && descriptionInput.invalid"
+        [class.focus:ring-red-500]="submitted() && descriptionInput.invalid"
+      ></textarea>
+      <app-form-field-error [control]="descriptionInput" [submitted]="submitted()" />
+    </div>
+
+    <!-- Date Found Field -->
+    <div class="mb-5">
+      <label for="dateFound" class="form-label">
         Data Encontrado <span class="text-red-500">*</span>
       </label>
       <input
+        id="dateFound"
         type="date"
-        class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+        [(ngModel)]="dateFound"
+        name="dateFound"
+        required
+        #dateFoundInput="ngModel"
+        class="form-input"
+        [class.border-red-300]="submitted() && dateFoundInput.invalid"
+        [class.focus:ring-red-500]="submitted() && dateFoundInput.invalid"
+      />
+      <app-form-field-error [control]="dateFoundInput" [submitted]="submitted()" />
+    </div>
+
+    <!-- Location Found Field -->
+    <div class="mb-5">
+      <label for="locationFound" class="form-label">
+        Local Encontrado <span class="text-red-500">*</span>
+      </label>
+      <input
+        id="locationFound"
+        type="text"
+        [(ngModel)]="locationFound"
+        name="locationFound"
+        placeholder="Ex: Sala 101, Bloco A"
+        required
+        maxlength="255"
+        #locationFoundInput="ngModel"
+        class="form-input"
+        [class.border-red-300]="submitted() && locationFoundInput.invalid"
+        [class.focus:ring-red-500]="submitted() && locationFoundInput.invalid"
+      />
+      <app-form-field-error [control]="locationFoundInput" [submitted]="submitted()" />
+    </div>
+
+    <!-- Image URL Field -->
+    <div class="mb-5">
+      <label for="imageUrl" class="form-label">
+        URL da Imagem <span class="text-red-500">*</span>
+      </label> 
+      <input
+        id="imageUrl"
+        type="url"
+        [(ngModel)]="imageUrl"
+        name="imageUrl"
+        placeholder="https://exemplo.com/imagem.jpg"
+        required
+        #imageUrlInput="ngModel"
+        class="form-input"
+        [class.border-red-300]="submitted() && imageUrlInput.invalid"
+        [class.focus:ring-red-500]="submitted() && imageUrlInput.invalid"
+      />
+      <app-form-field-error [control]="imageUrlInput" [submitted]="submitted()" />
+    </div>
+
+    <!-- Contact Info Field -->
+    <div class="mb-7">
+      <label for="contactInfo" class="form-label">Informações de Contato</label>
+      <input
+        id="contactInfo"
+        type="text"
+        [(ngModel)]="contactInfo"
+        name="contactInfo"
+        placeholder="Ex: (11) 99999-9999"
+        class="form-input"
       />
     </div>
 
-  </div>
+    <!-- Submit Button -->
+    <button
+      type="submit"
+      class="w-full bg-gray-900 hover:bg-gray-700 active:bg-gray-950 text-white font-semibold text-sm py-3 rounded-xl transition-colors duration-150"
+    >
+      Cadastrar Item
+    </button>
 
-  <div class="mb-5">
-    <label class="block text-sm font-medium text-gray-700 mb-1">
-      Local Encontrado <span class="text-red-500">*</span>
-    </label>
-    <input
-      type="text"
-      placeholder="Ex: Sala 101, Bloco A"
-      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
-    />
-  </div>
-
-  <div class="mb-5">
-    <label class="block text-sm font-medium text-gray-700 mb-1">URL da Imagem</label>
-    <input
-      type="url"
-      placeholder="https://exemplo.com/imagem.jpg"
-      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
-    />
-  </div>
-
-  <div class="mb-7">
-    <label class="block text-sm font-medium text-gray-700 mb-1">Informações de Contato</label>
-    <input
-      type="text"
-      placeholder="Ex: João - (11) 99999-9999"
-      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
-    />
-  </div>
-
-  <button
-    type="button"
-    class="w-full bg-gray-900 hover:bg-gray-700 active:bg-gray-950 text-white font-semibold text-sm py-3 rounded-xl transition-colors duration-150"
-  >
-    Cadastrar Item
-  </button>
+  </form>
 
 </div>
