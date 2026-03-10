@@ -1,57 +1,64 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { switchMap, catchError, of } from 'rxjs';
-
+import { Component, computed, effect, inject, input, signal, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ItemService } from '../../services/item.service';
 import { PageItem } from '../../types/api.helper';
+import { Loading } from '../loading/loading';
+import { HomeItemsListError } from '../home-items-list-error/home-items-list-error';
+import { HomeItemsListEmpty } from '../home-items-list-empty/home-items-list-empty';
+import { Pagination } from '../pagination/pagination';
+import { HomeItemCard } from '../home-item-card/home-item-card';
 
 @Component({
   selector: 'items-list-component',
+  imports: [Loading, HomeItemsListError, HomeItemsListEmpty, Pagination, HomeItemCard],
   templateUrl: './home-items-list.html',
 })
 export class HomeItemsList {
-  private itemService = inject(ItemService);
+  private readonly itemService = inject(ItemService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  searchQuery = input<string>('');
+  readonly searchQuery = input<string>('');
 
-  currentPage = signal(0);
-  error = signal(false);
+  readonly pageItem = signal<PageItem | null>(null);
+  readonly items = computed(() => this.pageItem()?.content ?? []);
+  readonly loadingState = signal<boolean>(false);
+  readonly error = signal<boolean>(false);
 
-  query$ = toObservable(
-    computed(() => ({
-      query: this.searchQuery().trim(),
-      page: this.currentPage(),
-    }))
-  );
-
-  private request$ = this.query$.pipe(
-    switchMap(({ query, page }) => {
-      this.error.set(false);
-
-      const request = query
-        ? this.itemService.searchItems(query, page)
-        : this.itemService.getAllItems(page);
-
-      return request.pipe(
-        catchError(() => {
-          this.error.set(true);
-          return of(null);
-        })
-      );
-    })
-  );
-
-  pageItem = toSignal<PageItem | null>(this.request$, { initialValue: null });
-
-  items = computed(() => this.pageItem()?.content ?? []);
-
-  nextPage() {
-    if (this.pageItem()?.last) return;
-    this.currentPage.update(p => p + 1);
+  constructor() {
+    effect(() => {
+      this.searchQuery();
+      this.loadItems(0);
+    });
   }
 
-  previousPage() {
-    if (this.pageItem()?.first) return;
-    this.currentPage.update(p => p - 1);
+  loadItems(pageNumber: number = 0): void {
+    this.loadingState.set(true);
+    this.error.set(false);
+
+    const query = this.searchQuery().trim();
+    const request$ = query
+      ? this.itemService.searchItems(query, pageNumber)
+      : this.itemService.getAllItems(pageNumber);
+
+    request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (result) => {
+        this.pageItem.set(result);
+        this.loadingState.set(false);
+      },
+      error: () => {
+        this.error.set(true);
+        this.loadingState.set(false);
+      },
+    });
+  }
+
+  previousPage(): void {
+    const page = this.pageItem();
+    if (page && !page.first && page.number !== undefined) this.loadItems(page.number - 1);
+  }
+
+  nextPage(): void {
+    const page = this.pageItem();
+    if (page && !page.last && page.number !== undefined) this.loadItems(page.number + 1);
   }
 }
