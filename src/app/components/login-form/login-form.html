@@ -18,8 +18,7 @@
       <input
         id="email"
         type="email"
-        [ngModel]="email()"
-        (ngModelChange)="email.set($event)"
+        [(ngModel)]="email"
         name="email"
         placeholder="admin@ufind.com"
         autocomplete="email"
@@ -28,17 +27,9 @@
         #emailInput="ngModel"
         class="input-brand w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5
                text-sm text-gray-900 placeholder-gray-400 transition duration-150 ease-in-out"
+        [class.border-red-300]="submitted() && emailInput.invalid"
       />
-      @if (submitted() && emailInput.invalid) {
-        <div class="mt-1.5 p-2 rounded bg-red-50 border border-red-200">
-          @if (emailInput.errors?.['required']) {
-            <p class="text-sm text-red-600">O email é obrigatório</p>
-          }
-          @if (emailInput.errors?.['email']) {
-            <p class="text-sm text-red-600">Digite um email válido</p>
-          }
-        </div>
-      }
+      <app-form-field-error [control]="emailInput" [submitted]="submitted()" />
     </div>
     <!-- /Email Field -->
 
@@ -50,8 +41,7 @@
       <input
         id="password"
         type="password"
-        [ngModel]="password()"
-        (ngModelChange)="password.set($event)"
+        [(ngModel)]="password"
         name="password"
         placeholder="••••••••"
         autocomplete="current-password"
@@ -59,12 +49,9 @@
         #passwordInput="ngModel"
         class="input-brand w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5
                text-sm text-gray-900 placeholder-gray-400 transition duration-150 ease-in-out"
+        [class.border-red-300]="submitted() && passwordInput.invalid"
       />
-      @if (submitted() && passwordInput.invalid) {
-        <div class="mt-1.5 p-2 rounded bg-red-50 border border-red-200">
-          <p class="text-sm text-red-600">A senha é obrigatória</p>
-        </div>
-      }
+      <app-form-field-error [control]="passwordInput" [submitted]="submitted()" />
     </div>
     <!-- /Password Field -->
 

@@ -1,10 +1,11 @@
 import { Component, input, output } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { signal } from '@angular/core';
+import { FormFieldError } from '../form-field-error/form-field-error';
 
 @Component({
   selector: 'app-login-form',
-  imports: [FormsModule],
+  imports: [FormsModule, FormFieldError],
   templateUrl: './login-form.html'
 })
 export class LoginForm {
