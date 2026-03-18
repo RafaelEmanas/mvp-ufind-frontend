@@ -19,6 +19,7 @@
         maxlength="200"
         #titleInput="ngModel"
         class="form-input"
+        [disabled]="isSubmitting() || isProcessingImage()"
         [class.border-red-300]="submitted() && titleInput.invalid"
         [class.focus:ring-red-500]="submitted() && titleInput.invalid"
       />
@@ -40,6 +41,7 @@
         maxlength="500"
         #descriptionInput="ngModel"
         class="form-input resize-y"
+        [disabled]="isSubmitting() || isProcessingImage()"
         [class.border-red-300]="submitted() && descriptionInput.invalid"
         [class.focus:ring-red-500]="submitted() && descriptionInput.invalid"
       ></textarea>
@@ -59,6 +61,7 @@
         required
         #dateFoundInput="ngModel"
         class="form-input"
+        [disabled]="isSubmitting() || isProcessingImage()"
         [class.border-red-300]="submitted() && dateFoundInput.invalid"
         [class.focus:ring-red-500]="submitted() && dateFoundInput.invalid"
       />
@@ -80,30 +83,62 @@
         maxlength="255"
         #locationFoundInput="ngModel"
         class="form-input"
+        [disabled]="isSubmitting() || isProcessingImage()"
         [class.border-red-300]="submitted() && locationFoundInput.invalid"
         [class.focus:ring-red-500]="submitted() && locationFoundInput.invalid"
       />
       <app-form-field-error [control]="locationFoundInput" [submitted]="submitted()" />
     </div>
 
-    <!-- Image URL Field -->
+    <!-- Image Upload Field -->
     <div class="mb-5">
-      <label for="imageUrl" class="form-label">
-        URL da Imagem <span class="text-red-500">*</span>
-      </label> 
-      <input
-        id="imageUrl"
-        type="url"
-        [(ngModel)]="imageUrl"
-        name="imageUrl"
-        placeholder="https://exemplo.com/imagem.jpg"
-        required
-        #imageUrlInput="ngModel"
-        class="form-input"
-        [class.border-red-300]="submitted() && imageUrlInput.invalid"
-        [class.focus:ring-red-500]="submitted() && imageUrlInput.invalid"
-      />
-      <app-form-field-error [control]="imageUrlInput" [submitted]="submitted()" />
+      <label class="form-label">
+        Imagem <span class="text-red-500">*</span>
+      </label>
+      
+      <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center transition"
+           [class.opacity-50]="isSubmitting() || isProcessingImage()"
+           [class.pointer-events-none]="isSubmitting() || isProcessingImage()"
+           [class.hover:border-gray-400]="!(isSubmitting() || isProcessingImage())">
+        <input
+          id="imageUpload"
+          type="file"
+          accept="image/*"
+          capture="environment"
+          (change)="onFileSelected($event)"
+          [disabled]="isSubmitting() || isProcessingImage()"
+          class="hidden"
+        />
+        <label for="imageUpload" class="cursor-pointer">
+          @if (!imagePreviewUrl()) {
+            <div class="space-y-2">
+              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <p class="text-sm text-gray-600">Clique para adicionar uma foto</p>
+              <p class="text-xs text-gray-500">Máximo 8MB</p>
+            </div>
+          }
+          
+          @if (imagePreviewUrl()) {
+            <img [src]="imagePreviewUrl()" alt="Preview" class="max-h-48 mx-auto rounded-lg object-contain" />
+          }
+        </label>
+      </div>
+      
+      @if (isProcessingImage()) {
+        <p class="mt-2 text-sm text-gray-600 text-center">Processando imagem...</p>
+      }
+      
+      @if (isSubmitting()) {
+        <p class="mt-2 text-sm text-gray-600 text-center">Enviando imagem...</p>
+      }
+      
+      @if (submitted() && !selectedImage()) {
+        <div class="mt-1.5 p-2 rounded bg-red-50 border border-red-200">
+          <p class="text-sm text-red-600">Este campo é obrigatório</p>
+        </div>
+      }
     </div>
 
     <!-- Contact Info Field -->
@@ -116,15 +151,29 @@
         name="contactInfo"
         placeholder="Ex: (11) 99999-9999"
         class="form-input"
+        [disabled]="isSubmitting() || isProcessingImage()"
       />
     </div>
 
     <!-- Submit Button -->
     <button
       type="submit"
-      class="w-full bg-gray-900 hover:bg-gray-700 active:bg-gray-950 text-white font-semibold text-sm py-3 rounded-xl transition-colors duration-150"
+      [disabled]="isSubmitting() || isProcessingImage()"
+      class="w-full bg-gray-900 hover:bg-gray-700 active:bg-gray-950 text-white font-semibold text-sm py-3 rounded-xl transition-colors duration-150 enabled:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
     >
-      Cadastrar Item
+      @if (isSubmitting()) {
+        <span class="flex items-center justify-center gap-2">
+          <div class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+          Cadastrando...
+        </span>
+      } @else if (isProcessingImage()) {
+        <span class="flex items-center justify-center gap-2">
+          <div class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+          Processando...
+        </span>
+      } @else {
+        Cadastrar Item
+      }
     </button>
 
   </form>
