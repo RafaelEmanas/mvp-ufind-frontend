@@ -5,5 +5,11 @@ export type Item = components['schemas']['Item'];
 export type PageItem = operations['getAllItems']['responses'][200]['content']['*/*'];
 export type PageItemContent = PageItem['content'];
 
-//Auth data
-export type UserData = components['schemas']['UserInfoDTO']
+// Auth data
+export type UserData = components['schemas']['UserInfoDTO'];
+
+// Upload types
+export type PresignedUploadResponse = components['schemas']['PresignedUploadDTO'];
+
+// Request types
+export type RegisterItemRequest = components['schemas']['RegisterItemRequest'];

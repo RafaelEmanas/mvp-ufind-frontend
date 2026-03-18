@@ -68,6 +68,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/upload-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["generateUrl"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/item/{id}": {
         parameters: {
             query?: never;
@@ -128,7 +144,7 @@ export interface components {
             locationFound: string;
             /** @enum {string} */
             status?: "AVAILABLE" | "CLAIMED";
-            imageUrl?: string;
+            imageUrl: string;
             contactInfo?: string;
         };
         RegisterUserRequest: {
@@ -152,6 +168,10 @@ export interface components {
         MarkItemClaimedRequest: {
             /** Format: uuid */
             id: string;
+        };
+        PresignedUploadDTO: {
+            uploadUrl?: string;
+            imageUrl?: string;
         };
         Pageable: {
             /** Format: int32 */
@@ -178,11 +198,13 @@ export interface components {
             updatedAt?: string;
         };
         PageItem: {
-            /** Format: int64 */
-            totalElements?: number;
             /** Format: int32 */
             totalPages?: number;
+            /** Format: int64 */
+            totalElements?: number;
             pageable?: components["schemas"]["PageableObject"];
+            first?: boolean;
+            last?: boolean;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["Item"][];
@@ -191,8 +213,6 @@ export interface components {
             sort?: components["schemas"]["SortObject"];
             /** Format: int32 */
             numberOfElements?: number;
-            first?: boolean;
-            last?: boolean;
             empty?: boolean;
         };
         PageableObject: {
@@ -346,6 +366,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["UserInfoDTO"];
+                };
+            };
+        };
+    };
+    generateUrl: {
+        parameters: {
+            query: {
+                contentType: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PresignedUploadDTO"];
                 };
             };
         };
