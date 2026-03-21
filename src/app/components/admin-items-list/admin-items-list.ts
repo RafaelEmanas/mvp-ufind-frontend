@@ -28,6 +28,7 @@ export class AdminItemsList {
 
   editItem = output<string>();
   deleteItem = output<string>();
+  claimItem = output<string>();
 
   constructor() {
     this.loadItems();
@@ -66,5 +67,9 @@ export class AdminItemsList {
 
   onDeleteItem(itemId: string) {
     this.deleteItem.emit(itemId);
+  }
+
+  onClaimItem(itemId: string) {
+    this.claimItem.emit(itemId);
   }
 }
