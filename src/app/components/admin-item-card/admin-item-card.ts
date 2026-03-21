@@ -10,6 +10,7 @@ export class AdminItemCard {
   item = input.required<Item>();
   edit = output<void>();
   delete = output<void>();
+  claimItem = output<void>();
 
   formatDate(dateString: string): string {
     const date = new Date(dateString);
@@ -22,5 +23,9 @@ export class AdminItemCard {
 
   onDelete() {
     this.delete.emit();
+  }
+
+  onClaim() {
+    this.claimItem.emit();
   }
 }
