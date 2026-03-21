@@ -145,7 +145,9 @@ export interface components {
             /** @enum {string} */
             status?: "AVAILABLE" | "CLAIMED";
             imageUrl: string;
-            contactInfo?: string;
+            finderName: string;
+            finderEmail: string;
+            finderCollegeId: string;
         };
         RegisterUserRequest: {
             username: string;
@@ -168,6 +170,9 @@ export interface components {
         MarkItemClaimedRequest: {
             /** Format: uuid */
             id: string;
+            claimerName: string;
+            claimerEmail: string;
+            claimerCollegeId: string;
         };
         PresignedUploadDTO: {
             uploadUrl?: string;
@@ -191,7 +196,12 @@ export interface components {
             /** @enum {string} */
             status?: "AVAILABLE" | "CLAIMED";
             imageUrl?: string;
-            contactInfo?: string;
+            finderName?: string;
+            finderEmail?: string;
+            finderCollegeId?: string;
+            claimerName?: string;
+            claimerEmail?: string;
+            claimerCollegeId?: string;
             /** Format: date-time */
             createdAt?: string;
             /** Format: date-time */
