@@ -1,9 +1,9 @@
-import { Component, output, signal, inject } from '@angular/core';
+import { Component, output, signal, inject, effect, input } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { FormFieldError } from '../form-field-error/form-field-error';
 import { ItemService } from '../../services/item.service';
 import { ToastService } from '../../services/toast.service';
-import { PresignedUploadResponse, RegisterItemRequest } from '../../types/api.helper';
+import { Item, PresignedUploadResponse, RegisterItemRequest } from '../../types/api.helper';
 
 @Component({
   selector: 'app-item-form',
@@ -14,27 +14,65 @@ export class AdminItemForm {
   private itemService = inject(ItemService);
   private toastService = inject(ToastService);
 
+  itemId = input<string | null>(null);
+
   title = signal<string>('');
   description = signal<string>('');
   dateFound = signal<string>('');
   locationFound = signal<string>('');
-  contactInfo = signal<string>('');
+  finderName = signal<string>('');
+  finderEmail = signal<string>('');
+  finderCollegeId = signal<string>('');
+  itemStatus = signal<string>('');
+  claimerName = signal<string>('');
+  claimerEmail = signal<string>('');
+  claimerCollegeId = signal<string>('');
+  isReadOnly = signal<boolean>(false);
   submitted = signal<boolean>(false);
   selectedImage = signal<File | null>(null);
   imagePreviewUrl = signal<string | null>(null);
   isProcessingImage = signal<boolean>(false);
   isSubmitting = signal<boolean>(false);
-
-  formSubmit = output<{
-    title: string;
-    description: string;
-    dateFound: string;
-    locationFound: string;
-    imageUrl: string;
-    contactInfo: string;
-  }>();
+  isLoadingItem = signal<boolean>(false);
 
   itemRegistered = output<void>();
+
+  constructor() {
+    effect(() => {
+      const id = this.itemId();
+      if (id) {
+        this.loadItemData(id);
+      }
+    });
+  }
+
+  loadItemData(id: string) {
+    this.isLoadingItem.set(true);
+
+    this.itemService.getItemById(id).subscribe({
+      next: (item: Item) => {
+        this.title.set(item.title || '');
+        this.description.set(item.description || '');
+        this.dateFound.set(item.dateFound || '');
+        this.locationFound.set(item.locationFound || '');
+        this.finderName.set(item.finderName || '');
+        this.finderEmail.set(item.finderEmail || '');
+        this.finderCollegeId.set(item.finderCollegeId || '');
+        this.itemStatus.set(item.status || '');
+        this.claimerName.set(item.claimerName || '');
+        this.claimerEmail.set(item.claimerEmail || '');
+        this.claimerCollegeId.set(item.claimerCollegeId || '');
+        this.imagePreviewUrl.set(item.imageUrl || null);
+        this.isReadOnly.set(item.status === 'CLAIMED');
+        this.isLoadingItem.set(false);
+      },
+      error: (error) => {
+        console.error('Error loading item:', error);
+        this.toastService.show('Erro ao carregar item. Tente novamente.', 'error');
+        this.isLoadingItem.set(false);
+      }
+    });
+  }
 
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -119,7 +157,9 @@ export class AdminItemForm {
           dateFound: this.dateFound(),
           locationFound: this.locationFound(),
           imageUrl: imageUrl,
-          contactInfo: this.contactInfo() || undefined
+          finderName: this.finderName(),
+          finderEmail: this.finderEmail(),
+          finderCollegeId: this.finderCollegeId()
         };
 
         this.itemService.registerItem(itemData).subscribe({
@@ -150,9 +190,32 @@ export class AdminItemForm {
     this.description.set('');
     this.dateFound.set('');
     this.locationFound.set('');
-    this.contactInfo.set('');
+    this.finderName.set('');
+    this.finderEmail.set('');
+    this.finderCollegeId.set('');
+    this.itemStatus.set('');
+    this.claimerName.set('');
+    this.claimerEmail.set('');
+    this.claimerCollegeId.set('');
     this.selectedImage.set(null);
     this.imagePreviewUrl.set(null);
+    this.isReadOnly.set(false);
     this.submitted.set(false);
+  }
+
+  isValidCollegeEmail(email: string): boolean {
+    return email.trim().toLowerCase().endsWith('@icomp.ufam.edu.br') || 
+           email.trim().toLowerCase().endsWith('@ufam.edu.br');
+  }
+
+  isValidCollegeId(id: string): boolean {
+    return id.length === 8;
+  }
+
+  onCollegeIdInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const numericValue = input.value.replace(/\D/g, '');
+    const truncatedValue = numericValue.slice(0, 8);
+    this.finderCollegeId.set(truncatedValue);
   }
 }
