@@ -4,19 +4,29 @@
 
   <div class="max-w-6xl mx-auto w-full">
 
-    <h1 class="text-2xl font-bold text-gray-900 mb-6">Painel Administrativo</h1>
-
     <div class="flex flex-col lg:flex-row gap-6 lg:gap-8 w-full">
 
-      <app-item-form (itemRegistered)="itemsList.loadItems()" />
+      <app-item-form 
+        [itemId]="editingItemId()"
+        (itemRegistered)="onItemRegistered()" 
+      />
 
       <app-admin-items-list 
         #itemsList
         (editItem)="onEditItem($event)"
         (deleteItem)="onDeleteItem($event)"
+        (claimItem)="onClaimItem($event)"
       />
 
     </div>
   </div>
+
+  @if (claimingItemId()) {
+    <app-claim-item-modal
+      [itemId]="claimingItemId()!"
+      (itemClaimed)="onItemClaimed()"
+      (closeModal)="onCloseClaimModal()"
+    />
+  }
 
 </div>
