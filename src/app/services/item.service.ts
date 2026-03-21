@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { API_ENDPOINTS } from '../../endpoints';
-import { PageItem, PresignedUploadResponse, RegisterItemRequest } from '../types/api.helper';
+import { Item, MarkItemClaimedRequest, PageItem, PresignedUploadResponse, RegisterItemRequest } from '../types/api.helper';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -96,6 +96,14 @@ export class ItemService {
 
   registerItem(itemData: RegisterItemRequest): Observable<void> {
     return this.http.post<void>(API_ENDPOINTS.ITEM, itemData);
+  }
+
+  getItemById(id: string): Observable<Item> {
+    return this.http.get<Item>(`${API_ENDPOINTS.ITEM}/${id}`);
+  }
+
+  markItemAsClaimed(data: MarkItemClaimedRequest): Observable<void> {
+    return this.http.patch<void>(API_ENDPOINTS.ITEM, data);
   }
 }
 
