@@ -13,3 +13,4 @@ export type PresignedUploadResponse = components['schemas']['PresignedUploadDTO'
 
 // Request types
 export type RegisterItemRequest = components['schemas']['RegisterItemRequest'];
+export type MarkItemClaimedRequest = components['schemas']['MarkItemClaimedRequest'];
