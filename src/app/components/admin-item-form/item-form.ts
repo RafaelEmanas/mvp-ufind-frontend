@@ -1,13 +1,14 @@
-import { Component, output, signal, inject, effect, input } from '@angular/core';
+import { Component, inject, signal, input, output, viewChild, effect } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { FormFieldError } from '../form-field-error/form-field-error';
 import { ItemService } from '../../services/item.service';
 import { ToastService } from '../../services/toast.service';
-import { Item, PresignedUploadResponse, RegisterItemRequest } from '../../types/api.helper';
+import { Item, PresignedUploadResponse, RegisterItemRequest, UpdateItemRequest } from '../../types/api.helper';
+import { ImageUpload } from '../image-upload/image-upload';
+import { ItemFormData, FormData as ItemFormDataInterface } from '../item-form-data/item-form-data';
 
 @Component({
   selector: 'app-item-form',
-  imports: [FormsModule, FormFieldError],
+  imports: [FormsModule, ImageUpload, ItemFormData],
   templateUrl: './item-form.html',
 })
 export class AdminItemForm {
@@ -15,33 +16,59 @@ export class AdminItemForm {
   private toastService = inject(ToastService);
 
   itemId = input<string | null>(null);
+  itemRegistered = output<void>();
 
-  title = signal<string>('');
-  description = signal<string>('');
-  dateFound = signal<string>('');
-  locationFound = signal<string>('');
-  finderName = signal<string>('');
-  finderEmail = signal<string>('');
-  finderCollegeId = signal<string>('');
+  isSubmitting = signal<boolean>(false);
+  isLoadingItem = signal<boolean>(false);
+  isReadOnly = signal<boolean>(false);
+  submitted = signal<boolean>(false);
   itemStatus = signal<string>('');
   claimerName = signal<string>('');
   claimerEmail = signal<string>('');
   claimerCollegeId = signal<string>('');
-  isReadOnly = signal<boolean>(false);
-  submitted = signal<boolean>(false);
-  selectedImage = signal<File | null>(null);
-  imagePreviewUrl = signal<string | null>(null);
-  isProcessingImage = signal<boolean>(false);
-  isSubmitting = signal<boolean>(false);
-  isLoadingItem = signal<boolean>(false);
+  hasExistingImage = signal<boolean>(false);
 
-  itemRegistered = output<void>();
+  formData = viewChild<ItemFormData>('formData');
+  imageUpload = viewChild<ImageUpload>('imageUpload');
+  private isEditMode = false;
+
+  private setFormDataFromItem(item: Item) {
+    this.formData()!.setFormData({
+      title: item.title || '',
+      description: item.description || '',
+      dateFound: item.dateFound || '',
+      locationFound: item.locationFound || '',
+      finderName: item.finderName || '',
+      finderEmail: item.finderEmail || '',
+      finderCollegeId: item.finderCollegeId || '',
+    });
+  }
+
+  private setExistingImageFromItem(item: Item) {
+    if (item.imageUrl) {
+      this.imageUpload()!.setPreviewUrl(item.imageUrl);
+      this.imageUpload()!.setAsExistingImage();
+      this.hasExistingImage.set(true);
+    }
+  }
+
+  private setClaimerDataFromItem(item: Item) {
+    this.itemStatus.set(item.status || '');
+    this.claimerName.set(item.claimerName || '');
+    this.claimerEmail.set(item.claimerEmail || '');
+    this.claimerCollegeId.set(item.claimerCollegeId || '');
+    this.isReadOnly.set(item.status === 'CLAIMED');
+  }
 
   constructor() {
     effect(() => {
       const id = this.itemId();
       if (id) {
+        this.isEditMode = true;
         this.loadItemData(id);
+      } else {
+        this.isEditMode = false;
+        this.hasExistingImage.set(false);
       }
     });
   }
@@ -51,19 +78,9 @@ export class AdminItemForm {
 
     this.itemService.getItemById(id).subscribe({
       next: (item: Item) => {
-        this.title.set(item.title || '');
-        this.description.set(item.description || '');
-        this.dateFound.set(item.dateFound || '');
-        this.locationFound.set(item.locationFound || '');
-        this.finderName.set(item.finderName || '');
-        this.finderEmail.set(item.finderEmail || '');
-        this.finderCollegeId.set(item.finderCollegeId || '');
-        this.itemStatus.set(item.status || '');
-        this.claimerName.set(item.claimerName || '');
-        this.claimerEmail.set(item.claimerEmail || '');
-        this.claimerCollegeId.set(item.claimerCollegeId || '');
-        this.imagePreviewUrl.set(item.imageUrl || null);
-        this.isReadOnly.set(item.status === 'CLAIMED');
+        this.setFormDataFromItem(item);
+        this.setExistingImageFromItem(item);
+        this.setClaimerDataFromItem(item);
         this.isLoadingItem.set(false);
       },
       error: (error) => {
@@ -74,41 +91,121 @@ export class AdminItemForm {
     });
   }
 
-  onFileSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
+  private validateFormData(form: NgForm): { formData: ItemFormDataInterface | null, selectedImage: File | null, isValid: boolean } {
+    const formData = this.formData()?.getFormData() ?? null;
+    const selectedImage = this.imageUpload()?.getFile() ?? null;
 
-    if (!file.type.startsWith('image/')) {
-      this.toastService.show('Por favor, selecione um arquivo de imagem válido.', 'error');
-      input.value = '';
+    if (!formData) {
+      return { formData: null, selectedImage: null, isValid: false };
+    }
+
+    if (!this.isEditMode && !selectedImage) {
+      return { formData, selectedImage: null, isValid: false };
+    }
+
+    if (!form.valid) {
+      return { formData, selectedImage, isValid: false };
+    }
+
+    return { formData, selectedImage, isValid: true };
+  }
+
+  async onSubmit(form: NgForm) {
+    this.submitted.set(true);
+
+    const validation = this.validateFormData(form);
+    if (!validation.isValid) {
       return;
     }
 
-    if (!this.itemService.isFileSizeValid(file)) {
-      this.toastService.show('O arquivo excede o tamanho máximo de 8MB.', 'error');
-      input.value = '';
-      return;
+    const { formData, selectedImage } = validation;
+
+    this.isSubmitting.set(true);
+
+    try {
+      const imageUrl = await this.handleImageUpload(selectedImage);
+      if (!imageUrl) {
+        this.toastService.show('Selecione uma imagem.', 'error');
+        this.isSubmitting.set(false);
+        return;
+      }
+      const itemData = this.buildItemData(formData!, imageUrl);
+      this.handleFormSubmission(itemData, form, this.itemId());
+    } catch (error) {
+      console.error('Upload failed:', error);
+      this.toastService.show('Erro ao enviar imagem. Tente novamente.', 'error');
+      this.isSubmitting.set(false);
     }
+  }
 
-    this.isProcessingImage.set(true);
+  private async handleImageUpload(selectedImage: File | null | undefined): Promise<string | null> {
+    if (this.isEditMode && !selectedImage && this.hasExistingImage()) {
+      return this.imageUpload()?.getPreviewUrl() || null;
+    } else if (selectedImage) {
+      return await this.uploadImage(selectedImage);
+    } else {
+      return null;
+    }
+  }
 
-    this.itemService.compressImage(file)
-      .then((compressedFile) => {
-        this.selectedImage.set(compressedFile);
-        const reader = new FileReader();
-        reader.onload = () => {
-          this.imagePreviewUrl.set(reader.result as string);
-        };
-        reader.readAsDataURL(compressedFile);
-        this.isProcessingImage.set(false);
-      })
-      .catch((error) => {
-        console.error('Compression error:', error);
-        this.toastService.show('Erro ao processar imagem. Tente novamente.', 'error');
-        this.isProcessingImage.set(false);
-        input.value = '';
+  private buildItemData(formData: ItemFormDataInterface, imageUrl: string): RegisterItemRequest {
+    return {
+      title: formData.title,
+      description: formData.description,
+      dateFound: formData.dateFound,
+      locationFound: formData.locationFound,
+      imageUrl: imageUrl,
+      finderName: formData.finderName,
+      finderEmail: formData.finderEmail,
+      finderCollegeId: formData.finderCollegeId
+    };
+  }
+
+  private handleFormSubmission(itemData: RegisterItemRequest, form: NgForm, editingId: string | null) {
+    if (this.isEditMode && editingId) {
+      // Update existing item - convert to UpdateItemRequest
+      const updateData: UpdateItemRequest = {
+        title: itemData.title,
+        description: itemData.description,
+        dateFound: itemData.dateFound,
+        locationFound: itemData.locationFound,
+        imageUrl: itemData.imageUrl,
+        finderName: itemData.finderName,
+        finderEmail: itemData.finderEmail,
+        finderCollegeId: itemData.finderCollegeId
+      };
+      
+      this.itemService.updateItem(editingId, updateData).subscribe({
+        next: () => {
+          this.toastService.show('Item atualizado com sucesso!', 'success');
+          this.resetForm(form);
+          this.itemRegistered.emit();
+        },
+        error: (error) => {
+          console.error('Update error:', error);
+          this.toastService.show('Erro ao atualizar item. Tente novamente.', 'error');
+        },
+        complete: () => {
+          this.isSubmitting.set(false);
+        }
       });
+    } else {
+      // Register new item
+      this.itemService.registerItem(itemData).subscribe({
+        next: () => {
+          this.toastService.show('Item cadastrado com sucesso!', 'success');
+          this.resetForm(form);
+          this.itemRegistered.emit();
+        },
+        error: (error) => {
+          console.error('Registration error:', error);
+          this.toastService.show('Erro ao cadastrar item. Tente novamente.', 'error');
+        },
+        complete: () => {
+          this.isSubmitting.set(false);
+        }
+      });
+    }
   }
 
   private uploadImage(file: File): Promise<string> {
@@ -138,84 +235,17 @@ export class AdminItemForm {
     });
   }
 
-  async onSubmit(form: NgForm) {
-    this.submitted.set(true);
-
-    if (!this.selectedImage()) {
-      return;
-    }
-
-    if (form.valid) {
-      this.isSubmitting.set(true);
-
-      try {
-        const imageUrl = await this.uploadImage(this.selectedImage()!);
-        
-        const itemData: RegisterItemRequest = {
-          title: this.title(),
-          description: this.description(),
-          dateFound: this.dateFound(),
-          locationFound: this.locationFound(),
-          imageUrl: imageUrl,
-          finderName: this.finderName(),
-          finderEmail: this.finderEmail(),
-          finderCollegeId: this.finderCollegeId()
-        };
-
-        this.itemService.registerItem(itemData).subscribe({
-          next: () => {
-            this.toastService.show('Item cadastrado com sucesso!', 'success');
-            this.resetForm(form);
-            this.itemRegistered.emit();
-          },
-          error: (error) => {
-            console.error('Registration error:', error);
-            this.toastService.show('Erro ao cadastrar item. Tente novamente.', 'error');
-          },
-          complete: () => {
-            this.isSubmitting.set(false);
-          }
-        });
-      } catch (error) {
-        console.error('Upload failed:', error);
-        this.toastService.show('Erro ao enviar imagem. Tente novamente.', 'error');
-        this.isSubmitting.set(false);
-      }
-    }
-  }
-
   resetForm(form: NgForm) {
     form.resetForm();
-    this.title.set('');
-    this.description.set('');
-    this.dateFound.set('');
-    this.locationFound.set('');
-    this.finderName.set('');
-    this.finderEmail.set('');
-    this.finderCollegeId.set('');
+    this.formData()!.reset();
+    this.imageUpload()!.reset();
     this.itemStatus.set('');
     this.claimerName.set('');
     this.claimerEmail.set('');
     this.claimerCollegeId.set('');
-    this.selectedImage.set(null);
-    this.imagePreviewUrl.set(null);
     this.isReadOnly.set(false);
     this.submitted.set(false);
-  }
-
-  isValidCollegeEmail(email: string): boolean {
-    return email.trim().toLowerCase().endsWith('@icomp.ufam.edu.br') || 
-           email.trim().toLowerCase().endsWith('@ufam.edu.br');
-  }
-
-  isValidCollegeId(id: string): boolean {
-    return id.length === 8;
-  }
-
-  onCollegeIdInput(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const numericValue = input.value.replace(/\D/g, '');
-    const truncatedValue = numericValue.slice(0, 8);
-    this.finderCollegeId.set(truncatedValue);
+    this.isEditMode = false;
+    this.hasExistingImage.set(false);
   }
 }

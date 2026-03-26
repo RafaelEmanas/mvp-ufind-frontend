@@ -1,0 +1,165 @@
+<!-- Title Field -->
+<div class="mb-5">
+  <label for="title" class="form-label">
+    Título <span class="text-red-500">*</span>
+  </label>
+  <input
+    id="title"
+    type="text"
+    [(ngModel)]="title"
+    name="title"
+    placeholder="Ex: Carteira preta"
+    required
+    maxlength="200"
+    #titleInput="ngModel"
+    class="form-input"
+    [disabled]="readOnly() || submitting()"
+    [class.border-red-300]="submitted() && titleInput.invalid"
+    [class.focus:ring-red-500]="submitted() && titleInput.invalid"
+  />
+  <app-form-field-error [control]="titleInput" [submitted]="submitted()" />
+</div>
+
+<!-- Description Field -->
+<div class="mb-5">
+  <label for="description" class="form-label">
+    Descrição <span class="text-red-500">*</span>
+  </label>
+  <textarea
+    id="description"
+    rows="4"
+    [(ngModel)]="description"
+    name="description"
+    placeholder="Descreva o item encontrado..."
+    required
+    maxlength="500"
+    #descriptionInput="ngModel"
+    class="form-input resize-y"
+    [disabled]="readOnly() || submitting()"
+    [class.border-red-300]="submitted() && descriptionInput.invalid"
+    [class.focus:ring-red-500]="submitted() && descriptionInput.invalid"
+  ></textarea>
+  <app-form-field-error [control]="descriptionInput" [submitted]="submitted()" />
+</div>
+
+<!-- Date Found Field -->
+<div class="mb-5">
+  <label for="dateFound" class="form-label">
+    Data Encontrado <span class="text-red-500">*</span>
+  </label>
+  <input
+    id="dateFound"
+    type="date"
+    [(ngModel)]="dateFound"
+    name="dateFound"
+    required
+    #dateFoundInput="ngModel"
+    class="form-input"
+    [disabled]="readOnly() || submitting()"
+    [class.border-red-300]="submitted() && dateFoundInput.invalid"
+    [class.focus:ring-red-500]="submitted() && dateFoundInput.invalid"
+  />
+  <app-form-field-error [control]="dateFoundInput" [submitted]="submitted()" />
+</div>
+
+<!-- Location Found Field -->
+<div class="mb-5">
+  <label for="locationFound" class="form-label">
+    Local Encontrado <span class="text-red-500">*</span>
+  </label>
+  <input
+    id="locationFound"
+    type="text"
+    [(ngModel)]="locationFound"
+    name="locationFound"
+    placeholder="Ex: Sala 101, Bloco A"
+    required
+    maxlength="255"
+    #locationFoundInput="ngModel"
+    class="form-input"
+    [disabled]="readOnly() || submitting()"
+    [class.border-red-300]="submitted() && locationFoundInput.invalid"
+    [class.focus:ring-red-500]="submitted() && locationFoundInput.invalid"
+  />
+  <app-form-field-error [control]="locationFoundInput" [submitted]="submitted()" />
+</div>
+
+<!-- Finder Name Field -->
+<div class="mb-5">
+  <label for="finderName" class="form-label">
+    Nome do Encontrador <span class="text-red-500">*</span>
+  </label>
+  <input
+    id="finderName"
+    type="text"
+    [(ngModel)]="finderName"
+    name="finderName"
+    placeholder="Ex: Ana Silva"
+    required
+    maxlength="100"
+    #finderNameInput="ngModel"
+    class="form-input"
+    [disabled]="readOnly() || submitting()"
+    [class.border-red-300]="submitted() && finderNameInput.invalid"
+    [class.focus:ring-red-500]="submitted() && finderNameInput.invalid"
+  />
+  <app-form-field-error [control]="finderNameInput" [submitted]="submitted()" />
+</div>
+
+<!-- Finder Email Field -->
+<div class="mb-5">
+  <label for="finderEmail" class="form-label">
+    Email do Encontrador <span class="text-red-500">*</span>
+  </label>
+  <input
+    id="finderEmail"
+    type="email"
+    [(ngModel)]="finderEmail"
+    name="finderEmail"
+    placeholder="Ex: ana@icomp.ufam.edu.br"
+    required
+    maxlength="100"
+    #finderEmailInput="ngModel"
+    class="form-input"
+    [disabled]="readOnly() || submitting()"
+    [class.border-red-300]="submitted() && (finderEmailInput.invalid || !isValidCollegeEmail(finderEmail()))"
+    [class.focus:ring-red-500]="submitted() && (finderEmailInput.invalid || !isValidCollegeEmail(finderEmail()))"
+  />
+  <app-form-field-error [control]="finderEmailInput" [submitted]="submitted()" />
+  @if (submitted() && finderEmail() && !isValidCollegeEmail(finderEmail())) {
+    <div class="mt-1.5 p-2 rounded bg-red-50 border border-red-200">
+      <p class="text-sm text-red-600">Digite um email institucional válido (@icomp.ufam.edu.br ou @ufam.edu.br)</p>
+    </div>
+  }
+</div>
+
+<!-- Finder College ID Field -->
+<div class="mb-7">
+  <label for="finderCollegeId" class="form-label">
+    Matrícula do Encontrador <span class="text-red-500">*</span>
+  </label>
+  <input
+    id="finderCollegeId"
+    type="text"
+    [(ngModel)]="finderCollegeId"
+    name="finderCollegeId"
+    placeholder="Ex: 12345678"
+    required
+    maxlength="8"
+    inputmode="numeric"
+    pattern="\d*"
+    (keydown)="onCollegeIdKeyDown($event)"
+    (input)="onCollegeIdInput($event)"
+    #finderCollegeIdInput="ngModel"
+    class="form-input"
+    [class.border-red-300]="submitted() && (finderCollegeIdInput.invalid || !isValidCollegeId(finderCollegeId()))"
+    [class.focus:ring-red-500]="submitted() && (finderCollegeIdInput.invalid || !isValidCollegeId(finderCollegeId()))"
+    [disabled]="readOnly() || submitting()"
+  />
+  <app-form-field-error [control]="finderCollegeIdInput" [submitted]="submitted()" />
+  @if (submitted() && finderCollegeId() && !isValidCollegeId(finderCollegeId())) {
+    <div class="mt-1.5 p-2 rounded bg-red-50 border border-red-200">
+      <p class="text-sm text-red-600">A matrícula deve ter exatamente 8 dígitos</p>
+    </div>
+  }
+</div>

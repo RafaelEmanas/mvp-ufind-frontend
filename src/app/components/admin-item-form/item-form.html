@@ -13,171 +13,13 @@
 
   <form novalidate #itemForm="ngForm" (ngSubmit)="onSubmit(itemForm)">
 
-    <!-- Title Field -->
-    <div class="mb-5">
-      <label for="title" class="form-label">
-        Título <span class="text-red-500">*</span>
-      </label>
-      <input
-        id="title"
-        type="text"
-        [(ngModel)]="title"
-        name="title"
-        placeholder="Ex: Carteira preta"
-        required
-        maxlength="200"
-        #titleInput="ngModel"
-        class="form-input"
-        [disabled]="isReadOnly() || isSubmitting() || isProcessingImage() || isLoadingItem()"
-        [class.border-red-300]="submitted() && titleInput.invalid"
-        [class.focus:ring-red-500]="submitted() && titleInput.invalid"
-      />
-      <app-form-field-error [control]="titleInput" [submitted]="submitted()" />
-    </div>
+    <app-item-form-data
+      #formData
+      [readOnly]="isReadOnly()"
+      [submitting]="isSubmitting()"
+      [submitted]="submitted()"
+    />
 
-    <!-- Description Field -->
-    <div class="mb-5">
-      <label for="description" class="form-label">
-        Descrição <span class="text-red-500">*</span>
-      </label>
-      <textarea
-        id="description"
-        rows="4"
-        [(ngModel)]="description"
-        name="description"
-        placeholder="Descreva o item encontrado..."
-        required
-        maxlength="500"
-        #descriptionInput="ngModel"
-        class="form-input resize-y"
-        [disabled]="isReadOnly() || isSubmitting() || isProcessingImage() || isLoadingItem()"
-        [class.border-red-300]="submitted() && descriptionInput.invalid"
-        [class.focus:ring-red-500]="submitted() && descriptionInput.invalid"
-      ></textarea>
-      <app-form-field-error [control]="descriptionInput" [submitted]="submitted()" />
-    </div>
-
-    <!-- Date Found Field -->
-    <div class="mb-5">
-      <label for="dateFound" class="form-label">
-        Data Encontrado <span class="text-red-500">*</span>
-      </label>
-      <input
-        id="dateFound"
-        type="date"
-        [(ngModel)]="dateFound"
-        name="dateFound"
-        required
-        #dateFoundInput="ngModel"
-        class="form-input"
-        [disabled]="isReadOnly() || isSubmitting() || isProcessingImage() || isLoadingItem()"
-        [class.border-red-300]="submitted() && dateFoundInput.invalid"
-        [class.focus:ring-red-500]="submitted() && dateFoundInput.invalid"
-      />
-      <app-form-field-error [control]="dateFoundInput" [submitted]="submitted()" />
-    </div>
-
-    <!-- Location Found Field -->
-    <div class="mb-5">
-      <label for="locationFound" class="form-label">
-        Local Encontrado <span class="text-red-500">*</span>
-      </label>
-      <input
-        id="locationFound"
-        type="text"
-        [(ngModel)]="locationFound"
-        name="locationFound"
-        placeholder="Ex: Sala 101, Bloco A"
-        required
-        maxlength="255"
-        #locationFoundInput="ngModel"
-        class="form-input"
-        [disabled]="isReadOnly() || isSubmitting() || isProcessingImage() || isLoadingItem()"
-        [class.border-red-300]="submitted() && locationFoundInput.invalid"
-        [class.focus:ring-red-500]="submitted() && locationFoundInput.invalid"
-      />
-      <app-form-field-error [control]="locationFoundInput" [submitted]="submitted()" />
-    </div>
-
-    <!-- Finder Name Field -->
-    <div class="mb-5">
-      <label for="finderName" class="form-label">
-        Nome do Encontrador <span class="text-red-500">*</span>
-      </label>
-      <input
-        id="finderName"
-        type="text"
-        [(ngModel)]="finderName"
-        name="finderName"
-        placeholder="Ex: Ana Silva"
-        required
-        maxlength="100"
-        #finderNameInput="ngModel"
-        class="form-input"
-        [disabled]="isReadOnly() || isSubmitting() || isProcessingImage() || isLoadingItem()"
-        [class.border-red-300]="submitted() && finderNameInput.invalid"
-        [class.focus:ring-red-500]="submitted() && finderNameInput.invalid"
-      />
-      <app-form-field-error [control]="finderNameInput" [submitted]="submitted()" />
-    </div>
-
-    <!-- Finder Email Field -->
-    <div class="mb-5">
-      <label for="finderEmail" class="form-label">
-        Email do Encontrador <span class="text-red-500">*</span>
-      </label>
-      <input
-        id="finderEmail"
-        type="email"
-        [(ngModel)]="finderEmail"
-        name="finderEmail"
-        placeholder="Ex: ana@icomp.ufam.edu.br"
-        required
-        maxlength="100"
-        #finderEmailInput="ngModel"
-        class="form-input"
-        [disabled]="isReadOnly() || isSubmitting() || isProcessingImage() || isLoadingItem()"
-        [class.border-red-300]="submitted() && (finderEmailInput.invalid || !isValidCollegeEmail(finderEmail()))"
-        [class.focus:ring-red-500]="submitted() && (finderEmailInput.invalid || !isValidCollegeEmail(finderEmail()))"
-      />
-      <app-form-field-error [control]="finderEmailInput" [submitted]="submitted()" />
-      @if (submitted() && finderEmail() && !isValidCollegeEmail(finderEmail())) {
-        <div class="mt-1.5 p-2 rounded bg-red-50 border border-red-200">
-          <p class="text-sm text-red-600">Digite um email institucional válido (@icomp.ufam.edu.br ou @ufam.edu.br)</p>
-        </div>
-      }
-    </div>
-
-    <!-- Finder College ID Field -->
-    <div class="mb-7">
-      <label for="finderCollegeId" class="form-label">
-        Matrícula do Encontrador <span class="text-red-500">*</span>
-      </label>
-      <input
-        id="finderCollegeId"
-        type="text"
-        [(ngModel)]="finderCollegeId"
-        name="finderCollegeId"
-        placeholder="Ex: 12345678"
-        required
-        maxlength="8"
-        inputmode="numeric"
-        (input)="onCollegeIdInput($event)"
-        #finderCollegeIdInput="ngModel"
-        class="form-input"
-        [class.border-red-300]="submitted() && (finderCollegeIdInput.invalid || !isValidCollegeId(finderCollegeId()))"
-        [class.focus:ring-red-500]="submitted() && (finderCollegeIdInput.invalid || !isValidCollegeId(finderCollegeId()))"
-        [disabled]="isReadOnly() || isSubmitting() || isProcessingImage() || isLoadingItem()"
-      />
-      <app-form-field-error [control]="finderCollegeIdInput" [submitted]="submitted()" />
-      @if (submitted() && finderCollegeId() && !isValidCollegeId(finderCollegeId())) {
-        <div class="mt-1.5 p-2 rounded bg-red-50 border border-red-200">
-          <p class="text-sm text-red-600">A matrícula deve ter exatamente 8 dígitos</p>
-        </div>
-      }
-    </div>
-
-    <!-- Claimer Info Section (only shown when editing claimed items) -->
     @if (isReadOnly() && itemStatus() === 'CLAIMED') {
       <div class="mb-5 p-4 bg-green-50 border border-green-200 rounded-lg">
         <h3 class="text-sm font-semibold text-green-800 mb-3">
@@ -208,71 +50,19 @@
       </div>
     }
 
-    <!-- Image Upload Field -->
-    <div class="mb-5">
-      <label class="form-label">
-        Imagem <span class="text-red-500">*</span>
-      </label>
-      
-      <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center transition"
-           [class.opacity-50]="isReadOnly() || isSubmitting() || isProcessingImage() || isLoadingItem()"
-           [class.pointer-events-none]="isReadOnly() || isSubmitting() || isProcessingImage() || isLoadingItem()"
-           [class.hover:border-gray-400]="!(isReadOnly() || isSubmitting() || isProcessingImage() || isLoadingItem())">
-        <input
-          id="imageUpload"
-          type="file"
-          accept="image/*"
-          capture="environment"
-          (change)="onFileSelected($event)"
-          [disabled]="isReadOnly() || isSubmitting() || isProcessingImage() || isLoadingItem()"
-          class="hidden"
-        />
-        <label for="imageUpload" class="cursor-pointer">
-          @if (!imagePreviewUrl()) {
-            <div class="space-y-2">
-              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <p class="text-sm text-gray-600">Clique para adicionar uma foto</p>
-              <p class="text-xs text-gray-500">Máximo 8MB</p>
-            </div>
-          }
-          
-          @if (imagePreviewUrl()) {
-            <img [src]="imagePreviewUrl()" alt="Preview" class="max-h-48 mx-auto rounded-lg object-contain" />
-          }
-        </label>
-      </div>
-      
-      @if (isProcessingImage()) {
-        <p class="mt-2 text-sm text-gray-600 text-center">Processando imagem...</p>
-      }
-      
-      @if (isSubmitting()) {
-        <p class="mt-2 text-sm text-gray-600 text-center">Enviando imagem...</p>
-      }
-      
-      @if (submitted() && !selectedImage()) {
-        <div class="mt-1.5 p-2 rounded bg-red-50 border border-red-200">
-          <p class="text-sm text-red-600">Este campo é obrigatório</p>
-        </div>
-      }
-    </div>
+    <app-image-upload
+      #imageUpload
+      [disabled]="isReadOnly() || isSubmitting() || isLoadingItem()"
+      [submitted]="submitted()"
+      class="block mb-7"
+    />
 
-
-
-    <!-- Submit Button -->
     <button
       type="submit"
-      [disabled]="isReadOnly() || isSubmitting() || isProcessingImage() || isLoadingItem()"
+      [disabled]="isReadOnly() || isSubmitting() || isLoadingItem()"
       class="w-full bg-gray-900 hover:bg-gray-700 active:bg-gray-950 text-white font-semibold text-sm py-3 rounded-xl transition-colors duration-150 enabled:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
     >
       @if (isSubmitting()) {
-        <span class="flex items-center justify-center gap-2">
-          <div class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-          Cadastrando...
-        </span>
-      } @else if (isProcessingImage()) {
         <span class="flex items-center justify-center gap-2">
           <div class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
           Processando...
