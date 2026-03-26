@@ -1,5 +1,7 @@
-import { Component, inject } from '@angular/core';
-import { ToastService } from '../../services/toast.service';
+import { Component, inject, signal, OnDestroy } from '@angular/core';
+import { ToastService, Toast as ToastData } from '../../services/toast.service';
+import { Subscription } from 'rxjs';
+import { TOAST_VISIBLE_DURATION_MS, TOAST_FADE_DURATION_MS } from '../../constants/app.constants';
 
 @Component({
   selector: 'app-toast',
@@ -17,8 +19,48 @@ import { ToastService } from '../../services/toast.service';
   `,
   standalone: true,
 })
-export class Toast {
+export class Toast implements OnDestroy {
   private toastService = inject(ToastService);
-  toast = this.toastService.toastData;
-  isVisible = this.toastService.isVisible;
+  private subscription?: Subscription;
+
+  toast = signal<ToastData | null>(null);
+  isVisible = signal<boolean>(false);
+  private timeoutId?: ReturnType<typeof setTimeout>;
+
+  constructor() {
+    this.subscription = this.toastService.toast$.subscribe((toast) => {
+      this.showToast(toast);
+    });
+  }
+
+  showToast(toast: ToastData | null) {
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+    }
+
+    if (toast) {
+      this.isVisible.set(true);
+      this.toast.set(toast);
+
+      this.timeoutId = setTimeout(() => {
+        this.hideToast();
+      }, TOAST_VISIBLE_DURATION_MS);
+    } else {
+      this.hideToast();
+    }
+  }
+
+  hideToast() {
+    this.isVisible.set(false);
+    setTimeout(() => {
+      this.toast.set(null);
+    }, TOAST_FADE_DURATION_MS);
+  }
+
+  ngOnDestroy() {
+    this.subscription?.unsubscribe();
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+    }
+  }
 }

@@ -1,4 +1,5 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 
 export interface Toast {
   message: string;
@@ -9,34 +10,14 @@ export interface Toast {
   providedIn: 'root',
 })
 export class ToastService {
-  private toast = signal<Toast | null>(null);
-  private timeoutId: ReturnType<typeof setTimeout> | null = null;
-  private isExiting = signal(false);
-
-  toastData = computed(() => this.toast());
-  isVisible = computed(() => this.toast() !== null && !this.isExiting());
+  private toastSubject = new Subject<Toast | null>();
+  toast$ = this.toastSubject.asObservable();
 
   show(message: string, type: 'error' | 'success') {
-    if (this.timeoutId) {
-      clearTimeout(this.timeoutId);
-    }
-
-    this.isExiting.set(false);
-    this.toast.set({ message, type });
-
-    this.timeoutId = setTimeout(() => {
-      this.hide();
-    }, 5000);
+    this.toastSubject.next({ message, type });
   }
 
   hide() {
-    if (this.timeoutId) {
-      clearTimeout(this.timeoutId);
-      this.timeoutId = null;
-    }
-    this.isExiting.set(true);
-    setTimeout(() => {
-      this.toast.set(null);
-    }, 300);
+    this.toastSubject.next(null);
   }
 }
