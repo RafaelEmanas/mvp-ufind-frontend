@@ -1,7 +1,7 @@
 import { Component, input, output } from '@angular/core';
 
 @Component({
-  selector: 'app-admin-searcbar',
+  selector: 'app-admin-searchbar',
   imports: [],
   templateUrl: './admin-searchbar.html',
 })
