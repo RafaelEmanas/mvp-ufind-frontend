@@ -1,8 +1,10 @@
-import { Component, signal, viewChild } from '@angular/core';
+import { Component, inject, signal, viewChild } from '@angular/core';
 import { AdminItemForm } from '../../components/admin-item-form/item-form';
 import { AdminItemsList } from '../../components/admin-items-list/admin-items-list';
 import { ClaimItemModal } from '../../components/claim-item-modal/claim-item-modal';
 import { Header } from '../../components/header/header';
+import { ItemService } from '../../services/item.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-admin',
@@ -10,6 +12,9 @@ import { Header } from '../../components/header/header';
   templateUrl: './admin.html',
 })
 export class Admin {
+  private itemService = inject(ItemService);
+  private toastService = inject(ToastService);
+
   itemsList = viewChild(AdminItemsList);
   editingItemId = signal<string | null>(null);
   claimingItemId = signal<string | null>(null);
@@ -19,7 +24,17 @@ export class Admin {
   }
 
   onDeleteItem(itemId: string) {
-    console.log('Delete item:', itemId);
+    if (confirm('Tem certeza que deseja excluir este item?')) {
+      this.itemService.deleteItem(itemId).subscribe({
+        next: () => {
+          this.toastService.show('Item excluído com sucesso!', 'success');
+          this.itemsList()?.loadItems();
+        },
+        error: () => {
+          this.toastService.show('Erro ao excluir item. Tente novamente.', 'error');
+        }
+      });
+    }
   }
 
   onItemRegistered() {
