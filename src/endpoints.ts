@@ -1,7 +1,7 @@
 import { environment } from './environment';
 
 export const API_ENDPOINTS = {
-  ITEM: `${environment.apiUrl}/item`,
+  ITEM: (id?: string) => `${environment.apiUrl}/item${id ? '/' + id : ''}`,
   REGISTER: `${environment.apiUrl}/auth/register`,
   LOGIN: `${environment.apiUrl}/auth/login`,
   LOGOUT: `${environment.apiUrl}/auth/logout`,
