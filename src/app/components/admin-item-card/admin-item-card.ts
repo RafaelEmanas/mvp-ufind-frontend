@@ -1,5 +1,6 @@
 import { Component, input, output } from '@angular/core';
 import { Item } from '../../types/api.helper';
+import { formatDate } from '../../utils/date-formatter';
 
 @Component({
   selector: 'app-admin-item-card',
@@ -12,10 +13,7 @@ export class AdminItemCard {
   delete = output<void>();
   claimItem = output<void>();
 
-  formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR');
-  }
+  formatDate = formatDate;
 
   onEdit() {
     this.edit.emit();

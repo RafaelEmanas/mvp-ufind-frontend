@@ -5,6 +5,7 @@ import { ToastService } from '../../services/toast.service';
 import { MarkItemClaimedRequest } from '../../types/api.helper';
 import { FormFieldError } from '../form-field-error/form-field-error';
 import { isValidCollegeEmail, isValidCollegeId } from '../../utils/validators';
+import { handleCollegeIdInput, handleCollegeIdKeyDown } from '../../utils/college-id-handler';
 
 @Component({
   selector: 'app-claim-item-modal',
@@ -24,12 +25,24 @@ export class ClaimItemModal {
   claimerCollegeId = signal<string>('');
   submitted = signal<boolean>(false);
   isSubmitting = signal<boolean>(false);
+  emailError = signal<string | null>(null);
+  collegeIdError = signal<string | null>(null);
 
   isValidCollegeEmail = isValidCollegeEmail;
   isValidCollegeId = isValidCollegeId;
 
   onSubmit(form: NgForm) {
     this.submitted.set(true);
+    this.emailError.set(null);
+    this.collegeIdError.set(null);
+
+    if (!this.isValidCollegeEmail(this.claimerEmail())) {
+      this.emailError.set('Digite um email institucional válido (@icomp.ufam.edu.br ou @ufam.edu.br)');
+    }
+
+    if (!this.isValidCollegeId(this.claimerCollegeId())) {
+      this.collegeIdError.set('A matrícula deve ter 8 dígitos');
+    }
 
     if (form.valid && this.isValidCollegeEmail(this.claimerEmail()) && this.isValidCollegeId(this.claimerCollegeId())) {
       this.isSubmitting.set(true);
@@ -46,7 +59,7 @@ export class ClaimItemModal {
           this.toastService.show('Item marcado como reivindicado com sucesso!', 'success');
           this.itemClaimed.emit();
         },
-        error: (error) => {
+        error: (error: unknown) => {
           console.error('Claim error:', error);
           this.toastService.show('Erro ao marcar item como reivindicado. Tente novamente.', 'error');
           this.isSubmitting.set(false);
@@ -60,9 +73,17 @@ export class ClaimItemModal {
   }
 
   onCollegeIdInput(event: Event) {
+    this.collegeIdError.set(null);
     const input = event.target as HTMLInputElement;
-    const numericValue = input.value.replace(/\D/g, '');
-    const truncatedValue = numericValue.slice(0, 8);
-    this.claimerCollegeId.set(truncatedValue);
+    input.value = handleCollegeIdInput(input.value);
+    this.claimerCollegeId.set(input.value);
+  }
+
+  onEmailInput() {
+    this.emailError.set(null);
+  }
+
+  onCollegeIdKeyDown(event: KeyboardEvent) {
+    handleCollegeIdKeyDown(event);
   }
 }

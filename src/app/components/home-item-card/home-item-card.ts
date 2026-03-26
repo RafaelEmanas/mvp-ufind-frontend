@@ -1,5 +1,6 @@
 import { Component, input } from '@angular/core';
 import { Item } from '../../types/api.helper';
+import { formatDate } from '../../utils/date-formatter';
 
 @Component({
   selector: 'app-item',
@@ -9,12 +10,7 @@ import { Item } from '../../types/api.helper';
 export class HomeItemCard {
   item = input.required<Item>();
 
-  formatDate(dateString: string): string {
-    const [year, month, day] = dateString.split('-').map(Number);
-    const date = new Date(year, month - 1, day);
-    
-    return date.toLocaleDateString('pt-BR');
-  }
+  formatDate = formatDate;
 
   badgeClass(status: string): string {
     return status === 'AVAILABLE'
