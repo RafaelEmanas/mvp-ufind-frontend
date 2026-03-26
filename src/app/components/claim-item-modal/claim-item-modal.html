@@ -59,6 +59,7 @@
         placeholder="Ex: joao@icomp.ufam.edu.br"
         required
         maxlength="100"
+        (input)="onEmailInput()"
         #claimerEmailInput="ngModel"
         class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5
                text-sm text-gray-900 placeholder-gray-400 transition duration-150 ease-in-out
@@ -67,9 +68,9 @@
         [class.focus:ring-red-500]="submitted() && (claimerEmailInput.invalid || !isValidCollegeEmail(claimerEmail()))"
       />
       <app-form-field-error [control]="claimerEmailInput" [submitted]="submitted()" />
-      @if (submitted() && claimerEmail() && !isValidCollegeEmail(claimerEmail())) {
+      @if (emailError()) {
         <div class="mt-1.5 p-2 rounded bg-red-50 border border-red-200">
-          <p class="text-sm text-red-600">Digite um email institucional válido (@icomp.ufam.edu.br ou @ufam.edu.br)</p>
+          <p class="text-sm text-red-600">{{ emailError() }}</p>
         </div>
       }
     </div>
@@ -88,6 +89,8 @@
         required
         maxlength="8"
         inputmode="numeric"
+        pattern="\d*"
+        (keydown)="onCollegeIdKeyDown($event)"
         (input)="onCollegeIdInput($event)"
         #claimerCollegeIdInput="ngModel"
         class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5
@@ -97,9 +100,9 @@
         [class.focus:ring-red-500]="submitted() && (claimerCollegeIdInput.invalid || !isValidCollegeId(claimerCollegeId()))"
       />
       <app-form-field-error [control]="claimerCollegeIdInput" [submitted]="submitted()" />
-      @if (submitted() && claimerCollegeId() && !isValidCollegeId(claimerCollegeId())) {
+      @if (collegeIdError()) {
         <div class="mt-1.5 p-2 rounded bg-red-50 border border-red-200">
-          <p class="text-sm text-red-600">A matrícula deve ter exatamente 8 dígitos</p>
+          <p class="text-sm text-red-600">{{ collegeIdError() }}</p>
         </div>
       }
     </div>
@@ -117,14 +120,9 @@
         type="submit"
         [disabled]="isSubmitting()"
         class="flex-1 text-white text-sm font-semibold rounded-xl py-3 px-4
-               transition-all duration-150 ease-in-out cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-        style="background-color: #2BAB6F;"
-        onmouseover="this.style.backgroundColor='#229058'"
-        onmouseout="this.style.backgroundColor='#2BAB6F'"
-        onmousedown="this.style.backgroundColor='#1a7a4a'"
-        onmouseup="this.style.backgroundColor='#229058'"
-        onfocus="this.style.boxShadow='0 0 0 3px rgba(43,171,111,0.3)'"
-        onblur="this.style.boxShadow='none'"
+               transition-all duration-150 ease-in-out cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
+               bg-[#2BAB6F] hover:bg-[#229058] active:bg-[#1a7a4a]
+               focus:outline-none focus:ring-2 focus:ring-[#2BAB6F] focus:ring-opacity-50"
       >
         @if (isSubmitting()) {
           <span class="flex items-center justify-center gap-2">
